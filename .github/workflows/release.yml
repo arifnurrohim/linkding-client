@@ -61,9 +61,11 @@ jobs:
       - name: Build release APK
         env:
           KEYSTORE: ${{ runner.temp }}/linkding-release.keystore
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          # Added fallback: if KEY_ALIAS secret is missing, use 'linkding'
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS || 'linkding' }}
           STORE_PASS: ${{ secrets.KEYSTORE_PASSWORD }}
-          KEY_PASS: ${{ secrets.KEY_PASSWORD }}
+          # Added fallback: if KEY_PASSWORD secret is missing, use KEYSTORE_PASSWORD
+          KEY_PASS: ${{ secrets.KEY_PASSWORD || secrets.KEYSTORE_PASSWORD }}
         run: |
           chmod +x build.sh
           ./build.sh
