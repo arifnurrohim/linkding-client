@@ -56,7 +56,7 @@ Screenshots use a mock Linkding server with sample bookmarks.
 ## Install
 
 Prebuilt APKs are published on the
-[Releases](https://github.com/arifnurrohim/linkding-client/releases) page when
+[Releases](https://github.com/arifnurrohim/linkding/releases) page when
 available.
 
 To install a locally built APK:
