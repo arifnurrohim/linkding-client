@@ -12,7 +12,7 @@
 <p align="center">
   <img alt="Android 8.0+" src="https://img.shields.io/badge/Android-8.0%2B-3DDC84?logo=android&logoColor=white">
   <img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-blue.svg">
-  <img alt="Version 1.0.0" src="https://img.shields.io/badge/version-1.0.0-cba6f7">
+  <img alt="Version 1.0.2" src="https://img.shields.io/badge/version-1.0.2-cba6f7">
 </p>
 
 LinkDing is a small, dependency-light Android app for browsing and managing a
@@ -27,6 +27,7 @@ with favicons, tags, relative dates, and clear unread/shared/archived badges.
 ## Features
 
 - Connect to any Linkding instance with a server URL and API token.
+- Save multiple accounts and switch between servers from Settings.
 - Browse bookmarks with pull-to-refresh and paginated infinite scrolling.
 - Filter by **All**, **Unread**, **Archived**, or **Shared**.
 - Search bookmarks, or browse and search the tag list; tapping a tag filters
@@ -199,8 +200,9 @@ as `v1.2.3-beta.1`. The workflow uses the tag name as `versionName` and the
 commit count as a monotonically increasing `versionCode`.
 
 It creates a GitHub Release named `LinkDing 1.2.3`, uploads
-`LinkDing-1.2.3.apk`, and includes a `.sha256` checksum. Re-running the workflow
-for the same tag replaces the existing assets.
+`LinkDing-1.2.3.apk`, and includes a `.sha256` checksum. Release notes are read
+from the matching section of [`CHANGELOG.md`](CHANGELOG.md). Re-running the
+workflow for the same tag replaces the existing assets and notes.
 
 ## API compatibility
 

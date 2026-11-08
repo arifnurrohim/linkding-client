@@ -35,6 +35,7 @@ public class ConnectActivity extends Activity {
             finish();
             return;
         }
+        boolean addMode = getIntent().getBooleanExtra("add", false);
 
         Catppuccin.Palette p = Catppuccin.current(this);
         int accent = Catppuccin.accentColor(this);
@@ -81,10 +82,13 @@ public class ConnectActivity extends Activity {
         cardParams.topMargin = Ui.dp(this, 30);
         content.addView(card, cardParams);
 
-        TextView connectTitle = Ui.text(this, "Connect your server", 17f, p.text, true);
+        TextView connectTitle = Ui.text(this,
+                addMode ? "Add another server" : "Connect your server", 17f, p.text, true);
         card.addView(connectTitle);
 
-        TextView connectHint = Ui.text(this, "Your data stays on your own Linkding instance.",
+        TextView connectHint = Ui.text(this, addMode
+                        ? "Your current account stays saved so you can switch back later."
+                        : "Your data stays on your own Linkding instance.",
                 12.5f, p.subtext0);
         LinearLayout.LayoutParams connectHintParams = Ui.lp(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -94,12 +98,12 @@ public class ConnectActivity extends Activity {
 
         serverInput = Ui.input(this, "https://linkding.example.com",
                 InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_URI, false);
-        serverInput.setText(Prefs.getServer(this));
+        serverInput.setText(addMode ? "" : Prefs.getServer(this));
         card.addView(field("Server URL", serverInput, null));
 
         tokenInput = Ui.input(this, "Paste your API token",
                 InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD, false);
-        tokenInput.setText(Prefs.getToken(this));
+        tokenInput.setText(addMode ? "" : Prefs.getToken(this));
 
         TextView reveal = Ui.icon(this, Icons.VISIBILITY, 19f, p.overlay1);
         reveal.setPadding(Ui.dp(this, 8), Ui.dp(this, 8), Ui.dp(this, 8), Ui.dp(this, 8));
@@ -126,7 +130,7 @@ public class ConnectActivity extends Activity {
         TextView trustLabel = Ui.text(this, "Trust self-signed certificates", 13f, p.subtext0);
         trustRow.addView(trustLabel, Ui.lp(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
         trustSwitch = new Switch(this);
-        trustSwitch.setChecked(Prefs.trustAll(this));
+        trustSwitch.setChecked(!addMode && Prefs.trustAll(this));
         Ui.tintSwitch(trustSwitch, accent, Catppuccin.withAlpha(accent, 0.45f),
                 p.overlay0, p.surface2);
         trustRow.addView(trustSwitch);
@@ -247,6 +251,7 @@ public class ConnectActivity extends Activity {
                         connectButton.setAlpha(1f);
                         connectButton.setText("Connect");
                         if (result.ok) {
+                            Prefs.saveAccount(ConnectActivity.this, server, token, trustSwitch.isChecked());
                             Prefs.setServer(ConnectActivity.this, server);
                             Prefs.setToken(ConnectActivity.this, token);
                             Prefs.setTrustAll(ConnectActivity.this, trustSwitch.isChecked());

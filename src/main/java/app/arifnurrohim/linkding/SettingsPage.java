@@ -13,6 +13,8 @@ import android.widget.ScrollView;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import java.util.List;
+
 public class SettingsPage {
     private final MainActivity activity;
     private final Catppuccin.Palette p;
@@ -100,6 +102,16 @@ public class SettingsPage {
                 }));
         addCard(behavior);
 
+        section("Accounts");
+        LinearLayout accountsCard = card();
+        List<Prefs.Account> accounts = Prefs.getAccounts(activity);
+        for (int i = 0; i < accounts.size(); i++) {
+            accountsCard.addView(accountRow(accounts.get(i)));
+            accountsCard.addView(innerDivider());
+        }
+        accountsCard.addView(addAccountRow());
+        addCard(accountsCard);
+
         section("Server");
         LinearLayout server = card();
         server.addView(infoRow(Icons.DNS, "Server", Prefs.host(activity)));
@@ -156,7 +168,7 @@ public class SettingsPage {
         appLabelsParams.leftMargin = Ui.dp(activity, 12);
         appRow.addView(appLabels, appLabelsParams);
         appLabels.addView(Ui.text(activity, "LinkDing", 17f, p.text, true));
-        TextView version = Ui.text(activity, "Version 1.0.0 · app.arifnurrohim.linkding",
+        TextView version = Ui.text(activity, "Version 1.0.2 · app.arifnurrohim.linkding",
                 11.5f, p.overlay1);
         LinearLayout.LayoutParams versionParams = Ui.lp(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -417,6 +429,117 @@ public class SettingsPage {
         return row;
     }
 
+    private View accountRow(final Prefs.Account account) {
+        final boolean current = Prefs.isCurrent(activity, account);
+        LinearLayout row = Ui.horizontal(activity);
+        row.setPadding(Ui.dp(activity, 11), Ui.dp(activity, 10),
+                Ui.dp(activity, 11), Ui.dp(activity, 10));
+        row.setBackground(Ui.roundedStroke(activity,
+                current ? Catppuccin.withAlpha(accent, 0.12f) : Color.TRANSPARENT,
+                current ? accent : Color.TRANSPARENT,
+                current ? 1.4f : 0f, 14));
+        Ui.ripple(row, p.overlay2, 14);
+        Ui.clickable(row);
+
+        TextView icon = Ui.icon(activity, Icons.DNS, 18f, current ? accent : p.overlay1);
+        row.addView(icon, Ui.lp(Ui.dp(activity, 28), Ui.dp(activity, 28)));
+
+        LinearLayout labels = Ui.vertical(activity);
+        LinearLayout.LayoutParams labelsParams = Ui.lp(
+                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        labelsParams.leftMargin = Ui.dp(activity, 10);
+        row.addView(labels, labelsParams);
+        labels.addView(Ui.text(activity, account.label(), 14f, p.text, true));
+        TextView token = Ui.text(activity, Prefs.maskToken(account.token), 11.5f, p.overlay1);
+        LinearLayout.LayoutParams tokenParams = Ui.lp(
+                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        tokenParams.topMargin = Ui.dp(activity, 3);
+        labels.addView(token, tokenParams);
+
+        if (current) {
+            TextView check = Ui.icon(activity, Icons.CHECK_CIRCLE, 20f, accent);
+            row.addView(check, Ui.lp(Ui.dp(activity, 26), Ui.dp(activity, 26)));
+        } else {
+            TextView remove = Ui.icon(activity, Icons.DELETE, 18f, p.overlay1);
+            remove.setPadding(Ui.dp(activity, 8), Ui.dp(activity, 8),
+                    Ui.dp(activity, 8), Ui.dp(activity, 8));
+            Ui.ripple(remove, p.red, 99);
+            Ui.clickable(remove);
+            remove.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    confirmRemoveAccount(account);
+                }
+            });
+            LinearLayout.LayoutParams removeParams = Ui.lp(
+                    Ui.dp(activity, 34), Ui.dp(activity, 34));
+            removeParams.leftMargin = Ui.dp(activity, 6);
+            row.addView(remove, removeParams);
+
+            row.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Prefs.switchAccount(activity, account);
+                    FaviconLoader.clear();
+                    Ui.snack(activity, "Switched to " + account.label());
+                    activity.restartAtTab(0);
+                }
+            });
+        }
+        return row;
+    }
+
+    private View addAccountRow() {
+        LinearLayout row = Ui.horizontal(activity);
+        row.setPadding(Ui.dp(activity, 11), Ui.dp(activity, 11),
+                Ui.dp(activity, 11), Ui.dp(activity, 11));
+        row.setBackground(Ui.rounded(activity, Color.TRANSPARENT, 14));
+        Ui.ripple(row, p.overlay2, 14);
+        Ui.clickable(row);
+
+        TextView icon = Ui.icon(activity, Icons.ADD, 18f, accent);
+        row.addView(icon, Ui.lp(Ui.dp(activity, 28), Ui.dp(activity, 28)));
+
+        LinearLayout labels = Ui.vertical(activity);
+        LinearLayout.LayoutParams labelsParams = Ui.lp(
+                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        labelsParams.leftMargin = Ui.dp(activity, 10);
+        row.addView(labels, labelsParams);
+        labels.addView(Ui.text(activity, "Add account", 14f, p.text, true));
+        TextView subtitle = Ui.text(activity, "Connect another Linkding server", 11.5f, p.overlay1);
+        LinearLayout.LayoutParams subtitleParams = Ui.lp(
+                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        subtitleParams.topMargin = Ui.dp(activity, 3);
+        labels.addView(subtitle, subtitleParams);
+
+        row.addView(Ui.icon(activity, Icons.CHEVRON, 18f, p.overlay0),
+                Ui.lp(Ui.dp(activity, 24), Ui.dp(activity, 24)));
+
+        row.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(activity, ConnectActivity.class);
+                intent.putExtra("edit", true);
+                intent.putExtra("add", true);
+                activity.startActivity(intent);
+            }
+        });
+        return row;
+    }
+
+    private void confirmRemoveAccount(final Prefs.Account account) {
+        Dialogs.confirm(activity, "Remove account?",
+                "This forgets the saved server URL and API token for "
+                        + account.label() + ". You can add it again at any time.",
+                "Remove", true, new Runnable() {
+                    @Override
+                    public void run() {
+                        Prefs.removeAccount(activity, account.server);
+                        activity.restartAtTab(2);
+                    }
+                });
+    }
+
     private View infoRow(int iconCode, String label, String value) {
         LinearLayout row = Ui.horizontal(activity);
         row.setPadding(Ui.dp(activity, 11), Ui.dp(activity, 12),
@@ -499,13 +622,27 @@ public class SettingsPage {
     }
 
     private void confirmDisconnect() {
-        Dialogs.confirm(activity, "Disconnect server?",
-                "This removes the saved server URL, API token and preferences from this device.",
+        Prefs.Account current = Prefs.getCurrentAccount(activity);
+        final String label = current != null ? current.label() : Prefs.host(activity);
+        Dialogs.confirm(activity, "Disconnect " + label + "?",
+                "This forgets the saved server URL and API token for " + label
+                        + ". Other saved accounts stay available.",
                 "Disconnect", true, new Runnable() {
                     @Override
                     public void run() {
-                        Prefs.clear(activity);
+                        Prefs.removeAccount(activity, Prefs.getServer(activity));
+                        Prefs.setServer(activity, "");
+                        Prefs.setToken(activity, "");
                         FaviconLoader.clear();
+                        List<Prefs.Account> remaining = Prefs.getAccounts(activity);
+                        if (!remaining.isEmpty()) {
+                            Prefs.Account next = remaining.get(0);
+                            Prefs.switchAccount(activity, next);
+                            Ui.snack(activity, "Switched to " + next.label());
+                            activity.restartAtTab(0);
+                            return;
+                        }
+                        Prefs.clear(activity);
                         Intent intent = new Intent(activity, ConnectActivity.class);
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                         activity.startActivity(intent);
