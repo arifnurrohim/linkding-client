@@ -168,7 +168,7 @@ public class SettingsPage {
         appLabelsParams.leftMargin = Ui.dp(activity, 12);
         appRow.addView(appLabels, appLabelsParams);
         appLabels.addView(Ui.text(activity, "LinkDing", 17f, p.text, true));
-        TextView version = Ui.text(activity, "Version 1.0.2 · app.arifnurrohim.linkding",
+        TextView version = Ui.text(activity, "Version 1.0.3 · app.arifnurrohim.linkding",
                 11.5f, p.overlay1);
         LinearLayout.LayoutParams versionParams = Ui.lp(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -534,7 +534,7 @@ public class SettingsPage {
                 "Remove", true, new Runnable() {
                     @Override
                     public void run() {
-                        Prefs.removeAccount(activity, account.server);
+                        Prefs.removeAccount(activity, account);
                         activity.restartAtTab(2);
                     }
                 });
@@ -630,7 +630,8 @@ public class SettingsPage {
                 "Disconnect", true, new Runnable() {
                     @Override
                     public void run() {
-                        Prefs.removeAccount(activity, Prefs.getServer(activity));
+                        Prefs.Account active = Prefs.getCurrentAccount(activity);
+                        if (active != null) Prefs.removeAccount(activity, active);
                         Prefs.setServer(activity, "");
                         Prefs.setToken(activity, "");
                         FaviconLoader.clear();

@@ -12,7 +12,7 @@
 <p align="center">
   <img alt="Android 8.0+" src="https://img.shields.io/badge/Android-8.0%2B-3DDC84?logo=android&logoColor=white">
   <img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-blue.svg">
-  <img alt="Version 1.0.2" src="https://img.shields.io/badge/version-1.0.2-cba6f7">
+  <img alt="Version 1.0.3" src="https://img.shields.io/badge/version-1.0.3-cba6f7">
 </p>
 
 LinkDing is a small, dependency-light Android app for browsing and managing a

@@ -66,6 +66,10 @@ public final class Prefs {
         public String label() {
             return host(server);
         }
+
+        public boolean matches(Account other) {
+            return other != null && server.equals(other.server) && token.equals(other.token);
+        }
     }
 
     public static List<Account> getAccounts(Context context) {
@@ -115,7 +119,7 @@ public final class Prefs {
         List<Account> accounts = getAccounts(context);
         boolean replaced = false;
         for (int i = 0; i < accounts.size(); i++) {
-            if (accounts.get(i).server.equals(account.server)) {
+            if (accounts.get(i).matches(account)) {
                 accounts.set(i, account);
                 replaced = true;
                 break;
@@ -127,15 +131,17 @@ public final class Prefs {
 
     public static Account getCurrentAccount(Context context) {
         String server = getServer(context);
+        String token = getToken(context);
         if (server.isEmpty()) return null;
         for (Account account : getAccounts(context)) {
-            if (account.server.equals(server)) return account;
+            if (account.server.equals(server) && account.token.equals(token)) return account;
         }
         return null;
     }
 
     public static boolean isCurrent(Context context, Account account) {
-        return account != null && account.server.equals(getServer(context));
+        return account != null && account.server.equals(getServer(context))
+                && account.token.equals(getToken(context));
     }
 
     public static void switchAccount(Context context, Account account) {
@@ -147,10 +153,11 @@ public final class Prefs {
                 .apply();
     }
 
-    public static void removeAccount(Context context, String server) {
+    public static void removeAccount(Context context, Account account) {
+        if (account == null) return;
         List<Account> accounts = getAccounts(context);
         for (int i = 0; i < accounts.size(); i++) {
-            if (accounts.get(i).server.equals(server)) {
+            if (accounts.get(i).matches(account)) {
                 accounts.remove(i);
                 break;
             }
