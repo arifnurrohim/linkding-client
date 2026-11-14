@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">LinkDing</string>
+    <string name="quick_save">QuickSave</string>
 </resources>

@@ -20,6 +20,7 @@ import android.widget.TextView;
 public class ConnectActivity extends Activity {
     private EditText serverInput;
     private EditText tokenInput;
+    private EditText nameInput;
     private TextView errorView;
     private TextView connectButton;
     private Switch trustSwitch;
@@ -95,6 +96,12 @@ public class ConnectActivity extends Activity {
         connectHintParams.topMargin = Ui.dp(this, 5);
         connectHintParams.bottomMargin = Ui.dp(this, 18);
         card.addView(connectHint, connectHintParams);
+
+        nameInput = Ui.input(this, "Optional, e.g. Home",
+                InputType.TYPE_CLASS_TEXT, false);
+        Prefs.Account existing = addMode ? null : Prefs.getCurrentAccount(this);
+        nameInput.setText(existing == null ? "" : existing.name);
+        card.addView(field("Account name (optional)", nameInput, null));
 
         serverInput = Ui.input(this, "https://linkding.example.com",
                 InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_URI, false);
@@ -251,7 +258,9 @@ public class ConnectActivity extends Activity {
                         connectButton.setAlpha(1f);
                         connectButton.setText("Connect");
                         if (result.ok) {
-                            Prefs.saveAccount(ConnectActivity.this, server, token, trustSwitch.isChecked());
+                            Prefs.saveAccount(ConnectActivity.this,
+                                    nameInput.getText().toString(), server, token,
+                                    trustSwitch.isChecked());
                             Prefs.setServer(ConnectActivity.this, server);
                             Prefs.setToken(ConnectActivity.this, token);
                             Prefs.setTrustAll(ConnectActivity.this, trustSwitch.isChecked());

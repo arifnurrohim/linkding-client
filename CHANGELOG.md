@@ -5,6 +5,17 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.4] - 2026-11-14
+
+### Added
+
+- **QuickSave** share target: save a shared link directly from the Android
+  share sheet without opening the bookmark editor.
+- QuickSave defaults in **Settings → QuickSave** for saving links as unread,
+  shared, and/or archived.
+- Optional account name for each server URL and API token, shown in
+  **Settings → Accounts**.
+
 ## [1.0.3] - 2026-11-08
 
 ### Fixed
@@ -45,6 +56,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Four Catppuccin flavors and fourteen accent colors with live preview.
 - Optional favicons and self-signed certificate support.
 
+[1.0.4]: https://github.com/arifnurrohim/linkding-client/compare/v1.0.3...v1.0.4
 [1.0.3]: https://github.com/arifnurrohim/linkding-client/compare/v1.0.2...v1.0.3
 [1.0.2]: https://github.com/arifnurrohim/linkding-client/compare/v1.0.0...v1.0.2
 [1.0.0]: https://github.com/arifnurrohim/linkding-client/releases/tag/v1.0.0

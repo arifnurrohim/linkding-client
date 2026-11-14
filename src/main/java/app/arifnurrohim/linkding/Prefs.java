@@ -20,6 +20,9 @@ public final class Prefs {
     private static final String KEY_FAVICONS = "favicons";
     private static final String KEY_TRUST_ALL = "trust_all";
     private static final String KEY_SORT = "sort";
+    private static final String KEY_QUICK_UNREAD = "quick_unread";
+    private static final String KEY_QUICK_SHARED = "quick_shared";
+    private static final String KEY_QUICK_ARCHIVED = "quick_archived";
 
     public static final String DEFAULT_FLAVOR = "mocha";
     public static final String DEFAULT_ACCENT = "mauve";
@@ -53,18 +56,25 @@ public final class Prefs {
     }
 
     public static final class Account {
+        public final String name;
         public final String server;
         public final String token;
         public final boolean trustAll;
 
-        public Account(String server, String token, boolean trustAll) {
+        public Account(String name, String server, String token, boolean trustAll) {
+            this.name = name == null ? "" : name.trim();
             this.server = server;
             this.token = token;
             this.trustAll = trustAll;
         }
 
         public String label() {
-            return host(server);
+            return name.isEmpty() ? host(server) : name;
+        }
+
+        public String subtitle() {
+            String masked = maskToken(token);
+            return name.isEmpty() ? masked : host(server) + " · " + masked;
         }
 
         public boolean matches(Account other) {
@@ -84,13 +94,15 @@ public final class Prefs {
                     String server = normalizeServer(json.optString("server", ""));
                     String token = json.optString("token", "");
                     if (server.isEmpty() || token.isEmpty()) continue;
-                    accounts.add(new Account(server, token, json.optBoolean("trust_all", false)));
+                    accounts.add(new Account(json.optString("name", ""), server, token,
+                            json.optBoolean("trust_all", false)));
                 }
             } catch (Exception ignored) {
             }
         }
         if (accounts.isEmpty() && isConfigured(context)) {
-            Account current = new Account(getServer(context), getToken(context), trustAll(context));
+            Account current = new Account("", getServer(context), getToken(context),
+                    trustAll(context));
             accounts.add(current);
             saveAccounts(context, accounts);
         }
@@ -102,6 +114,7 @@ public final class Prefs {
         for (Account account : accounts) {
             try {
                 JSONObject json = new JSONObject();
+                json.put("name", account.name);
                 json.put("server", account.server);
                 json.put("token", account.token);
                 json.put("trust_all", account.trustAll);
@@ -112,14 +125,19 @@ public final class Prefs {
         prefs(context).edit().putString(KEY_ACCOUNTS, array.toString()).apply();
     }
 
-    public static void saveAccount(Context context, String server, String token, boolean trustAllValue) {
-        Account account = new Account(normalizeServer(server),
+    public static void saveAccount(Context context, String name, String server, String token,
+                                   boolean trustAllValue) {
+        Account account = new Account(name, normalizeServer(server),
                 token == null ? "" : token.trim(), trustAllValue);
         if (account.server.isEmpty() || account.token.isEmpty()) return;
         List<Account> accounts = getAccounts(context);
         boolean replaced = false;
         for (int i = 0; i < accounts.size(); i++) {
             if (accounts.get(i).matches(account)) {
+                if (account.name.isEmpty()) {
+                    account = new Account(accounts.get(i).name, account.server,
+                            account.token, account.trustAll);
+                }
                 accounts.set(i, account);
                 replaced = true;
                 break;
@@ -203,6 +221,30 @@ public final class Prefs {
 
     public static void setSort(Context context, String sort) {
         prefs(context).edit().putString(KEY_SORT, sort).apply();
+    }
+
+    public static boolean quickUnread(Context context) {
+        return prefs(context).getBoolean(KEY_QUICK_UNREAD, false);
+    }
+
+    public static void setQuickUnread(Context context, boolean value) {
+        prefs(context).edit().putBoolean(KEY_QUICK_UNREAD, value).apply();
+    }
+
+    public static boolean quickShared(Context context) {
+        return prefs(context).getBoolean(KEY_QUICK_SHARED, false);
+    }
+
+    public static void setQuickShared(Context context, boolean value) {
+        prefs(context).edit().putBoolean(KEY_QUICK_SHARED, value).apply();
+    }
+
+    public static boolean quickArchived(Context context) {
+        return prefs(context).getBoolean(KEY_QUICK_ARCHIVED, false);
+    }
+
+    public static void setQuickArchived(Context context, boolean value) {
+        prefs(context).edit().putBoolean(KEY_QUICK_ARCHIVED, value).apply();
     }
 
     public static void clear(Context context) {

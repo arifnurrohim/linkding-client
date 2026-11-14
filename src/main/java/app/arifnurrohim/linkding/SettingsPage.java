@@ -102,6 +102,38 @@ public class SettingsPage {
                 }));
         addCard(behavior);
 
+        section("QuickSave");
+        LinearLayout quickSave = card();
+        quickSave.setPadding(Ui.dp(activity, 15), Ui.dp(activity, 4),
+                Ui.dp(activity, 15), Ui.dp(activity, 4));
+        quickSave.addView(toggleRow(Icons.BOOKMARK_BORDER, "Save as unread",
+                "QuickSave keeps new bookmarks unread",
+                Prefs.quickUnread(activity), new ToggleAction() {
+                    @Override
+                    public void onChanged(boolean value) {
+                        Prefs.setQuickUnread(activity, value);
+                    }
+                }));
+        quickSave.addView(innerDivider());
+        quickSave.addView(toggleRow(Icons.SHARE, "Save as shared",
+                "QuickSave shares new bookmarks",
+                Prefs.quickShared(activity), new ToggleAction() {
+                    @Override
+                    public void onChanged(boolean value) {
+                        Prefs.setQuickShared(activity, value);
+                    }
+                }));
+        quickSave.addView(innerDivider());
+        quickSave.addView(toggleRow(Icons.ARCHIVE, "Save as archived",
+                "QuickSave archives new bookmarks",
+                Prefs.quickArchived(activity), new ToggleAction() {
+                    @Override
+                    public void onChanged(boolean value) {
+                        Prefs.setQuickArchived(activity, value);
+                    }
+                }));
+        addCard(quickSave);
+
         section("Accounts");
         LinearLayout accountsCard = card();
         List<Prefs.Account> accounts = Prefs.getAccounts(activity);
@@ -168,7 +200,7 @@ public class SettingsPage {
         appLabelsParams.leftMargin = Ui.dp(activity, 12);
         appRow.addView(appLabels, appLabelsParams);
         appLabels.addView(Ui.text(activity, "LinkDing", 17f, p.text, true));
-        TextView version = Ui.text(activity, "Version 1.0.3 · app.arifnurrohim.linkding",
+        TextView version = Ui.text(activity, "Version 1.0.4 · app.arifnurrohim.linkding",
                 11.5f, p.overlay1);
         LinearLayout.LayoutParams versionParams = Ui.lp(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -450,7 +482,7 @@ public class SettingsPage {
         labelsParams.leftMargin = Ui.dp(activity, 10);
         row.addView(labels, labelsParams);
         labels.addView(Ui.text(activity, account.label(), 14f, p.text, true));
-        TextView token = Ui.text(activity, Prefs.maskToken(account.token), 11.5f, p.overlay1);
+        TextView token = Ui.text(activity, account.subtitle(), 11.5f, p.overlay1);
         LinearLayout.LayoutParams tokenParams = Ui.lp(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         tokenParams.topMargin = Ui.dp(activity, 3);

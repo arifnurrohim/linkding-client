@@ -35,8 +35,6 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class MainActivity extends Activity implements BookmarkAdapter.Listener {
     private static final int REQ_EDIT = 100;
@@ -1128,7 +1126,7 @@ public class MainActivity extends Activity implements BookmarkAdapter.Listener {
         if (!"text/plain".equals(intent.getType())) return;
         intent.setAction(null);
         String text = intent.getStringExtra(Intent.EXTRA_TEXT);
-        String url = extractUrl(text);
+        String url = Urls.extract(text);
         if (url == null) {
             Ui.snack(this, "No link found in the shared text.");
             return;
@@ -1140,24 +1138,6 @@ public class MainActivity extends Activity implements BookmarkAdapter.Listener {
             edit.putExtra(EditBookmarkActivity.EXTRA_TITLE, subject.trim());
         }
         startActivityForResult(edit, REQ_EDIT);
-    }
-
-    private String extractUrl(String text) {
-        if (text == null) return null;
-        Matcher matcher = Pattern.compile("https?://[^\\s<>\"']+", Pattern.CASE_INSENSITIVE)
-                .matcher(text);
-        if (matcher.find()) {
-            String url = matcher.group();
-            while (url.length() > 1 && ".,;:!?)]}'\"".indexOf(url.charAt(url.length() - 1)) >= 0) {
-                url = url.substring(0, url.length() - 1);
-            }
-            return url;
-        }
-        String trimmed = text.trim();
-        if (trimmed.matches("^[\\w.-]+\\.[a-z]{2,}(/\\S*)?$")) {
-            return "https://" + trimmed;
-        }
-        return null;
     }
 
     private void hideKeyboard() {

@@ -12,7 +12,7 @@
 <p align="center">
   <img alt="Android 8.0+" src="https://img.shields.io/badge/Android-8.0%2B-3DDC84?logo=android&logoColor=white">
   <img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-blue.svg">
-  <img alt="Version 1.0.3" src="https://img.shields.io/badge/version-1.0.3-cba6f7">
+  <img alt="Version 1.0.4" src="https://img.shields.io/badge/version-1.0.4-cba6f7">
 </p>
 
 LinkDing is a small, dependency-light Android app for browsing and managing a
@@ -27,7 +27,8 @@ with favicons, tags, relative dates, and clear unread/shared/archived badges.
 ## Features
 
 - Connect to any Linkding instance with a server URL and API token.
-- Save multiple accounts and switch between servers from Settings.
+- Save multiple accounts, optionally with names, and switch between servers from
+  Settings.
 - Browse bookmarks with pull-to-refresh and paginated infinite scrolling.
 - Filter by **All**, **Unread**, **Archived**, or **Shared**.
 - Search bookmarks, or browse and search the tag list; tapping a tag filters
@@ -39,6 +40,8 @@ with favicons, tags, relative dates, and clear unread/shared/archived badges.
 - Bookmark actions: open in browser, edit, mark read/unread, archive,
   unarchive, share, copy link, and delete.
 - Receive links from Android's share sheet.
+- **QuickSave** share target to save a link without opening the editor, with
+  configurable unread/shared/archived defaults.
 - Four Catppuccin flavors (Latte, Frappé, Macchiato, Mocha) and fourteen
   accent colors, with a live preview in Settings.
 - Optional favicon loading and self-signed certificate support.
