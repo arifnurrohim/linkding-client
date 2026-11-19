@@ -237,6 +237,8 @@ public class SettingsPage {
         descriptionParams.bottomMargin = Ui.dp(activity, 6);
         about.addView(description, descriptionParams);
 
+        about.addView(linkRow(Icons.LINK, "Source code on GitHub",
+                "https://github.com/arifnurrohim/linkding-client"));
         about.addView(linkRow(Icons.PERSON, "Creator · arifnurrohim.my.id",
                 "https://arifnurrohim.my.id/"));
         about.addView(linkRow(Icons.EMAIL, "jobs.arifnurrohim@gmail.com",
