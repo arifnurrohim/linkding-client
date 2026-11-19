@@ -16,8 +16,13 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import java.util.List;
 
 public class ConnectActivity extends Activity {
+    private static final int REQ_RESTORE = 200;
+
     private EditText serverInput;
     private EditText tokenInput;
     private EditText nameInput;
@@ -37,6 +42,7 @@ public class ConnectActivity extends Activity {
             return;
         }
         boolean addMode = getIntent().getBooleanExtra("add", false);
+        boolean editMode = getIntent().getBooleanExtra("edit", false);
 
         Catppuccin.Palette p = Catppuccin.current(this);
         int accent = Catppuccin.accentColor(this);
@@ -170,6 +176,27 @@ public class ConnectActivity extends Activity {
         buttonParams.topMargin = Ui.dp(this, 20);
         card.addView(connectButton, buttonParams);
 
+        if (!editMode) {
+            TextView restore = Ui.text(this, "Restore accounts from backup", 14f, accent, true);
+            restore.setGravity(Gravity.CENTER);
+            restore.setPadding(Ui.dp(this, 12), Ui.dp(this, 12),
+                    Ui.dp(this, 12), Ui.dp(this, 12));
+            restore.setBackground(Ui.roundedStroke(this, Color.TRANSPARENT,
+                    Catppuccin.withAlpha(accent, 0.5f), 1, 14));
+            Ui.ripple(restore, p.overlay2, 14);
+            Ui.clickable(restore);
+            restore.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    restoreBackup();
+                }
+            });
+            LinearLayout.LayoutParams restoreParams = Ui.lp(
+                    ViewGroup.LayoutParams.MATCH_PARENT, Ui.dp(this, 46));
+            restoreParams.topMargin = Ui.dp(this, 10);
+            card.addView(restore, restoreParams);
+        }
+
         TextView help = Ui.text(this,
                 "Find your token in Linkding under Settings → Integrations. "
                         + "The server URL is the address you use in your browser.",
@@ -223,6 +250,49 @@ public class ConnectActivity extends Activity {
         wrapperParams.bottomMargin = Ui.dp(this, 14);
         wrapper.setLayoutParams(wrapperParams);
         return wrapper;
+    }
+
+    private void restoreBackup() {
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("*/*");
+        intent.putExtra(Intent.EXTRA_MIME_TYPES,
+                new String[]{"application/xml", "text/xml"});
+        startActivityForResult(intent, REQ_RESTORE);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode != REQ_RESTORE || resultCode != RESULT_OK
+                || data == null || data.getData() == null) {
+            return;
+        }
+        try {
+            List<Prefs.Account> restored = AccountBackup.read(this, data.getData());
+            if (restored.isEmpty()) {
+                Toast.makeText(this, "No accounts found in that backup.",
+                        Toast.LENGTH_LONG).show();
+                return;
+            }
+            for (Prefs.Account account : restored) {
+                Prefs.saveAccount(this, account.name, account.server,
+                        account.token, account.trustAll);
+            }
+            Prefs.Account first = restored.get(0);
+            nameInput.setText(first.name);
+            serverInput.setText(first.server);
+            tokenInput.setText(first.token);
+            trustSwitch.setChecked(first.trustAll);
+            errorView.setVisibility(View.GONE);
+            Toast.makeText(this, "Restored " + restored.size() + " account"
+                    + (restored.size() == 1 ? ". " : "s. ") + "Tap Connect to continue.",
+                    Toast.LENGTH_LONG).show();
+        } catch (Exception e) {
+            String message = e.getMessage();
+            showError("Restore failed: "
+                    + (TextUtils.isEmpty(message) ? "unknown error" : message));
+        }
     }
 
     private void connect() {

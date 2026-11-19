@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Restore merges accounts from a Linkding backup file into the saved accounts
   without removing existing ones.
 - Link to the project repository from **Settings → About**.
+- **Restore accounts from backup** directly on the first-launch screen.
 
 ### Notes
 
