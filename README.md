@@ -12,7 +12,7 @@
 <p align="center">
   <img alt="Android 8.0+" src="https://img.shields.io/badge/Android-8.0%2B-3DDC84?logo=android&logoColor=white">
   <img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-blue.svg">
-  <img alt="Version 1.0.4" src="https://img.shields.io/badge/version-1.0.4-cba6f7">
+  <img alt="Version 1.0.5" src="https://img.shields.io/badge/version-1.0.5-cba6f7">
 </p>
 
 LinkDing is a small, dependency-light Android app for browsing and managing a
@@ -29,6 +29,7 @@ with favicons, tags, relative dates, and clear unread/shared/archived badges.
 - Connect to any Linkding instance with a server URL and API token.
 - Save multiple accounts, optionally with names, and switch between servers from
   Settings.
+- Back up saved accounts to an XML file and restore them later from Settings.
 - Browse bookmarks with pull-to-refresh and paginated infinite scrolling.
 - Filter by **All**, **Unread**, **Archived**, or **Shared**.
 - Search bookmarks, or browse and search the tag list; tapping a tag filters

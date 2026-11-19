@@ -142,6 +142,24 @@ public class SettingsPage {
             accountsCard.addView(innerDivider());
         }
         accountsCard.addView(addAccountRow());
+        accountsCard.addView(innerDivider());
+        accountsCard.addView(actionRow(Icons.CLOUD, "Backup accounts",
+                "Save an XML file containing server URLs and API tokens",
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        activity.startAccountBackup();
+                    }
+                }));
+        accountsCard.addView(innerDivider());
+        accountsCard.addView(actionRow(Icons.SYNC, "Restore accounts",
+                "Add accounts from a Linkding backup XML file",
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        activity.startAccountRestore();
+                    }
+                }));
         addCard(accountsCard);
 
         section("Server");
@@ -200,7 +218,7 @@ public class SettingsPage {
         appLabelsParams.leftMargin = Ui.dp(activity, 12);
         appRow.addView(appLabels, appLabelsParams);
         appLabels.addView(Ui.text(activity, "LinkDing", 17f, p.text, true));
-        TextView version = Ui.text(activity, "Version 1.0.4 · app.arifnurrohim.linkding",
+        TextView version = Ui.text(activity, "Version 1.0.5 · app.arifnurrohim.linkding",
                 11.5f, p.overlay1);
         LinearLayout.LayoutParams versionParams = Ui.lp(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -554,6 +572,42 @@ public class SettingsPage {
                 intent.putExtra("edit", true);
                 intent.putExtra("add", true);
                 activity.startActivity(intent);
+            }
+        });
+        return row;
+    }
+
+    private View actionRow(int iconCode, String title, String subtitle,
+                           final Runnable action) {
+        LinearLayout row = Ui.horizontal(activity);
+        row.setPadding(Ui.dp(activity, 11), Ui.dp(activity, 11),
+                Ui.dp(activity, 11), Ui.dp(activity, 11));
+        row.setBackground(Ui.rounded(activity, Color.TRANSPARENT, 14));
+        Ui.ripple(row, p.overlay2, 14);
+        Ui.clickable(row);
+
+        TextView icon = Ui.icon(activity, iconCode, 18f, accent);
+        row.addView(icon, Ui.lp(Ui.dp(activity, 28), Ui.dp(activity, 28)));
+
+        LinearLayout labels = Ui.vertical(activity);
+        LinearLayout.LayoutParams labelsParams = Ui.lp(
+                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        labelsParams.leftMargin = Ui.dp(activity, 10);
+        row.addView(labels, labelsParams);
+        labels.addView(Ui.text(activity, title, 14f, p.text, true));
+        TextView subtitleView = Ui.text(activity, subtitle, 11.5f, p.overlay1);
+        LinearLayout.LayoutParams subtitleParams = Ui.lp(
+                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        subtitleParams.topMargin = Ui.dp(activity, 3);
+        labels.addView(subtitleView, subtitleParams);
+
+        row.addView(Ui.icon(activity, Icons.CHEVRON, 18f, p.overlay0),
+                Ui.lp(Ui.dp(activity, 24), Ui.dp(activity, 24)));
+
+        row.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                action.run();
             }
         });
         return row;

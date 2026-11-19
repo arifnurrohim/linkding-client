@@ -38,6 +38,8 @@ import java.util.List;
 
 public class MainActivity extends Activity implements BookmarkAdapter.Listener {
     private static final int REQ_EDIT = 100;
+    private static final int REQ_BACKUP = 101;
+    private static final int REQ_RESTORE = 102;
     private static final int PAGE = 50;
 
     private Catppuccin.Palette p;
@@ -1099,12 +1101,64 @@ public class MainActivity extends Activity implements BookmarkAdapter.Listener {
         recreate();
     }
 
+    public void startAccountBackup() {
+        if (Prefs.getAccounts(this).isEmpty()) {
+            Ui.snack(this, "No accounts to back up.");
+            return;
+        }
+        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("application/xml");
+        intent.putExtra(Intent.EXTRA_TITLE, AccountBackup.defaultFileName());
+        startActivityForResult(intent, REQ_BACKUP);
+    }
+
+    public void startAccountRestore() {
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("*/*");
+        intent.putExtra(Intent.EXTRA_MIME_TYPES,
+                new String[]{"application/xml", "text/xml"});
+        startActivityForResult(intent, REQ_RESTORE);
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQ_EDIT && resultCode == RESULT_OK) {
             loadBookmarks(true);
             if (!tags.isEmpty()) loadTags(true);
+            return;
+        }
+        if (resultCode != RESULT_OK || data == null || data.getData() == null) return;
+        if (requestCode == REQ_BACKUP) {
+            try {
+                AccountBackup.write(this, data.getData(), Prefs.getAccounts(this));
+                Ui.snack(this, "Accounts backed up.");
+            } catch (Exception e) {
+                String message = e.getMessage();
+                Ui.snack(this, "Backup failed: "
+                        + (TextUtils.isEmpty(message) ? "unknown error" : message));
+            }
+        } else if (requestCode == REQ_RESTORE) {
+            try {
+                List<Prefs.Account> restored = AccountBackup.read(this, data.getData());
+                if (restored.isEmpty()) {
+                    Ui.snack(this, "No accounts found in that backup.");
+                    return;
+                }
+                for (Prefs.Account account : restored) {
+                    Prefs.saveAccount(this, account.name, account.server,
+                            account.token, account.trustAll);
+                }
+                Ui.snack(this, "Restored " + restored.size() + " account"
+                        + (restored.size() == 1 ? "." : "s."));
+                restartAtTab(2);
+            } catch (Exception e) {
+                String message = e.getMessage();
+                Ui.snack(this, "Restore failed: "
+                        + (TextUtils.isEmpty(message) ? "unknown error" : message));
+            }
         }
     }
 
